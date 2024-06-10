@@ -1,0 +1,13 @@
+---
+# handlers file for unattended-upgrades
+- name: Restart dnf-automatic (Rhel systems)
+  ansible.builtin.service:
+    name: dnf-automatic
+    state: restarted
+  when: ansible_os_family == 'Redhat'
+
+- name: Restart unattende-updates (Debian Systems)
+  ansible.builtin.service:
+    name: unattended-upgrades
+    state: restarted
+  when: ansible_os_family == 'Debian'

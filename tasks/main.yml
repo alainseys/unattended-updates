@@ -1,0 +1,43 @@
+---
+# tasks file for unattende-updates
+- name: Install postfix
+  ansible.builtin.package:
+    name: postfix
+    state: present
+
+- name: Start > Postfix
+  ansible.builtin.service:
+    name: postfix
+    state: started
+    enabled: true
+
+- name: Install > unattende-updates on Rhel systems
+  ansible.builtin.package:
+    name: dnf-automatic
+    state: present
+  when: ansible_os_family == 'Redhat'
+
+- name: Install > unattende-updates on Debian Systems
+  ansible.builtin.package:
+    name: unattended-upgrades
+    state: present
+  when: ansible_os_family == 'Debian'
+
+
+- name: Enable > dnf-automatic
+  ansible.builtin.service:
+    name: dnf-automatic.timer
+    state: started
+    enabled: true
+  when: ansible_os_family == 'Redhat'
+
+- name: Copy automatic.conf to /etc/dnf
+  ansible.builtin.copy:
+    src: "automatic.conf"
+    dest: /etc/dnf/automatic.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Restart dnf-automatic
+  when: ansible_os_family == 'Redhat'
